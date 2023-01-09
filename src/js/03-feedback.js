@@ -30,9 +30,6 @@ const fillContactFormFields = () => {
       return;
     }
 
-    // console.log(contactForm.elements.email);
-    // console.log(contactForm.elements.message);
-
     for (const prop in userInfoFromLS) {
       console.log();
       contactForm.elements[prop].value = userInfoFromLS[prop];
