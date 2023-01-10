@@ -18,45 +18,90 @@
 // Зроби так, щоб сховище оновлювалось не частіше, ніж раз на 500 мілісекунд. Для цього додай до проекту і використовуй бібліотеку lodash.throttle.
 import throttle from 'lodash.throttle';
 const contactForm = document.querySelector('.feedback-form');
-const userInfo = {};
-
-const fillContactFormFields = () => {
-  try {
-    const userInfoFromLS = JSON.parse(
-      localStorage.getItem('feedback-form-state')
-    );
-
-    if (userInfoFromLS === null) {
-      return;
-    }
-
-    for (const prop in userInfoFromLS) {
-      console.log();
-      contactForm.elements[prop].value = userInfoFromLS[prop];
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+const LOCALSTORAGE_KEY = 'feedback-form-state';
 
 fillContactFormFields();
 
-const onInputChange = event => {
-  const { target } = event;
-
-  const name = target.name;
-  const value = target.value;
-
-  userInfo[name] = value;
-  localStorage.setItem('feedback-form-state', JSON.stringify(userInfo));
-};
-
-const onContactFormSubmit = event => {
-  event.preventDefault();
-  console.log(userInfo);
-  contactForm.reset();
-  localStorage.removeItem('feedback-form-state');
-};
-
-contactForm.addEventListener('input', throttle(onInputChange, 500));
 contactForm.addEventListener('submit', onContactFormSubmit);
+contactForm.addEventListener('input', throttle(onInputChange, 500));
+
+function onInputChange(event) {
+  let userInfoFromLS = localStorage.getItem(LOCALSTORAGE_KEY);
+  userInfoFromLS = userInfoFromLS ? JSON.parse(userInfoFromLS) : {};
+  userInfoFromLS[event.target.name] = event.target.value;
+  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(userInfoFromLS));
+}
+
+function onContactFormSubmit(event) {
+  let userInfoFromLS = localStorage.getItem(LOCALSTORAGE_KEY);
+  event.preventDefault();
+  if (userInfoFromLS) {
+    console.log(userInfoFromLS);
+    contactForm.reset();
+    localStorage.removeItem(LOCALSTORAGE_KEY);
+  } else {
+    alert('Please enter all the fields');
+    return false;
+  }
+}
+
+function fillContactFormFields() {
+  let userInfoFromLS = localStorage.getItem(LOCALSTORAGE_KEY);
+  if (userInfoFromLS) {
+    userInfoFromLS = JSON.parse(userInfoFromLS);
+    Object.entries(userInfoFromLS).forEach(([name, value]) => {
+      contactForm.elements[name].value = value;
+    });
+  }
+}
+
+// import throttle from 'lodash.throttle';
+// const contactForm = document.querySelector('.feedback-form');
+// const userInfo = {};
+
+// const fillContactFormFields = () => {
+//   try {
+//     const userInfoFromLS = JSON.parse(
+//       localStorage.getItem('feedback-form-state')
+//     );
+
+//     if (userInfoFromLS === null) {
+//       return;
+//     }
+
+//     for (const prop in userInfoFromLS) {
+//       console.log();
+//       contactForm.elements[prop].value = userInfoFromLS[prop];
+//       userInfo[prop] = userInfoFromLS[prop];
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+// fillContactFormFields();
+
+// const onInputChange = event => {
+//   const { target } = event;
+
+//   const name = target.name;
+//   const value = target.value;
+
+//   userInfo[name] = value;
+//   localStorage.setItem('feedback-form-state', JSON.stringify(userInfo));
+// };
+
+// const onContactFormSubmit = event => {
+//   event.preventDefault();
+//   if (userInfo.email && userInfo.message) {
+//     console.log(userInfo);
+//     contactFormEl.reset();
+//     localStorage.removeItem('feedback-form-state');
+//     userInfo = {};
+//   } else {
+//     alert('Please fill all the fields');
+//     return false;
+//   }
+// };
+
+// contactForm.addEventListener('input', throttle(onInputChange, 500));
+// contactForm.addEventListener('submit', onContactFormSubmit);
